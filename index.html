@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0,viewport-fit=cover">
+  <title>My LIFF app</title>
+  <link rel="stylesheet" href="css/style.css" media="all">
+</head>
+
+<body>
+  <section>
+    <h2>LIFF getEnvironment</h2>
+    <p id="os"><b>OS:</b> </p>
+    <p id="language"><b>Language:</b> </p>
+    <p id="version"><b>LIFF Version:</b> </p>
+    <p id="lineVersion"><b>Line Version:</b> </p>
+    <p id="isInClient"><b>isInClient - LIFF browser:</b> </p>
+    <p id="accessToken"><b>AccessToken:</b> </p>
+  </section>
+  <section>
+    <h2>LIFF getProfile</h2>
+    <p id="userId"><b>userId:</b> </p>
+    <p id="displayName"><b>displayName:</b> </p>
+    <p id="statusMessage"><b>statusMessage:</b> </p>
+    <p id="decodedIDToken"><b>email:</b> </p>
+    <img id="pictureUrl" width="300"> 
+  </section>
+  <section>
+    <h2>LIFF getContext</h2>
+    <p id="type"><b>type:</b> </p>
+    <p id="viewType"><b>viewType:</b> </p>
+    <p id="utouId"><b>utouId:</b> </p>
+    <p id="roomId"><b>roomId:</b> </p>
+    <p id="groupId"><b>groupId:</b> </p>
+  </section>
+  <section>
+    <h2>LIFF isLoggedIn</h2>
+    <p id="isLoggedIn"><b>isLoggedIn:</b> </p>
+  </section>
+  <section>
+    <h2>LIFF URL</h2>
+    <h3>createUrl, setExtraQueryParam and openWindow</h3>
+    <p id="permanentLink"><b>createUrl:</b> </p>
+    <button onclick="openWindow()">Open Window</button>
+  </section>
+  <section>
+    <h2>LIFF getFriendship</h2>
+    <p id="friendship"><b>isFriendship:</b> </p>
+  </section>
+
+  <!-- <p id="scanCode"><b>Code:</b> </p> -->
+
+  <section>
+    <h2>LIFF sendMessages</h2>
+    <button id="btnMsg" onclick="sendMsg()">Send Shop Address</button>
+  </section>
+  <section>
+    <h2>LIFF shareTargetPicker</h2>
+    <button id="btnShare" onclick="shareMsg()">Share Menu</button>
+  </section>
+  <section>
+    <h2>LIFF logout and close</h2>
+    <button id="btnLogOut" onclick="logOut()">Log Out</button>
+    <button id="btnClose" onclick="closed()">Close Window</button>
+  </section>
+
+  <!-- <button id="btnScanCode" onclick="scanCode()">Scan Code</button> -->
+
+
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <script>
+    function createUniversalLink() {
+    }
+
+    async function shareMsg() {
+      if (liff.isApiAvailable("shareTargetPicker")) {
+        await liff.shareTargetPicker([{
+          "type": "template",
+          "altText": "Not Available",
+          "template": {
+            "type": "buttons",
+            "thumbnailImageUrl": "https://miro.medium.com/max/1200/1*Wu4CVpHoiarVZQ1013_7rA.png",
+            "imageAspectRatio": "square",
+            "title": "Click to see our Menu!",
+            "text": "Enjoy our drinks",
+            "actions": [
+              {
+                "type": "uri",
+                "label": "Menu",
+                "uri": "https://lineman.line.me/food-restaurant-list-liff/"
+              }
+            ]
+          }
+        }
+        ])
+      }
+      else alert("Please update your app version")
+    }
+
+    function logOut() {
+      liff.logout()
+      window.location.reload()
+    }
+
+    function closed() {
+      liff.closeWindow()
+    }
+
+    // async function scanCode() {
+    //   const result = await liff.scanCode()
+    //   document.getElementById("scanCode").append(result.value)
+    // }
+
+    function openWindow() {
+      liff.openWindow({
+        "url": "https://lineman.line.me/food/"
+      })
+    }
+
+    function permanentLink(userId) {
+      liff.permanentLink.setExtraQueryParam('user_id=' + userId)
+      document.getElementById("permanentLink").append(liff.permanentLink.createUrl())
+    }
+
+    async function getFriendship() {
+      const friend = await liff.getFriendship()
+      document.getElementById("friendship").append(friend.friendFlag)
+      if (!friend.friendFlag) {
+        if (confirm("You has not add the account, would you like to add now?")) {
+          window.location = "https://line.me/ti/p/153pqqsb"
+        }
+      }
+    }
+
+    async function sendMsg() {
+      if (liff.getContext().type !== "none") {
+        await liff.sendMessages([
+          {
+            "type": "sticker",
+            "stickerId": "52114112",
+            "packageId": "11539",
+          },
+          {
+            "type": "text",
+            "text": "Hello, here is the shop address",
+          },
+          {
+            "type": "location",
+            "title": "My Shop",
+            "address": "127 Ratchadamri Road, Lumphini, Pathum Wan, Bangkok, 10330",
+            "latitude": 13.746441868712134,
+            "longitude": 100.54093455512464
+          }
+        ])
+        alert("Message Sent")
+      }
+    }
+
+    function getContext() {
+      document.getElementById("type").append(liff.getContext().type)
+      document.getElementById("viewType").append(liff.getContext().viewType)
+      document.getElementById("utouId").append(liff.getContext().utouId)
+      document.getElementById("roomId").append(liff.getContext().roomId)
+      document.getElementById("groupId").append(liff.getContext().groupId)
+    }
+
+    async function getUserProfile() {
+      const profile = await liff.getProfile()
+      document.getElementById("pictureUrl").src = profile.pictureUrl
+      document.getElementById("userId").append(profile.userId)
+      document.getElementById("statusMessage").append(profile.statusMessage)
+      document.getElementById("displayName").append(profile.displayName)
+      document.getElementById("decodedIDToken").append(liff.getDecodedIDToken().email)
+      permanentLink(profile.userId)
+    }
+
+    function getEnvironment() {
+      document.getElementById("os").append(liff.getOS())
+      document.getElementById("language").append(liff.getLanguage())
+      document.getElementById("version").append(liff.getVersion())
+      document.getElementById("lineVersion").append(liff.getLineVersion())
+      document.getElementById("accessToken").append(liff.getAccessToken())
+      document.getElementById("isInClient").append(liff.isInClient())
+    }
+
+    async function main() {
+      await liff.init({ liffId: "1656249175-3RKWbNQY" })
+      document.getElementById("isLoggedIn").append(liff.isLoggedIn())
+      if (liff.isLoggedIn()) {
+        getUserProfile()
+        getContext()
+        getEnvironment()
+        getFriendship()
+        createUniversalLink()
+      } else {
+        liff.login()
+      }
+    }
+    main()
+  </script>
+</body>
+
+</html>
